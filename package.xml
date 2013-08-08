@@ -17,7 +17,9 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>qt_dotgraph</run_depend>
+  <run_depend>rospkg</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>rqt_graph</run_depend>
   <run_depend>rqt_gui_py</run_depend>
 
   <export>
