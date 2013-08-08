@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RosGraphWidget</class>
- <widget class="QWidget" name="RosGraphWidget">
+ <class>CapabilityGraphWidget</class>
+ <widget class="QWidget" name="CapabilityGraphWidget">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ROS Graph</string>
+   <string>Capability Graph</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
    <item>
@@ -22,7 +22,7 @@
      <item>
       <widget class="QPushButton" name="refresh_graph_push_button">
        <property name="toolTip">
-        <string>Refresh ROS graph</string>
+        <string>Refresh Capability graph</string>
        </property>
       </widget>
      </item>
