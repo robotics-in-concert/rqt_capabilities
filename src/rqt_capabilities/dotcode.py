@@ -47,12 +47,12 @@ def generate_dotcode_from_capability_info():
     dotcode_factory = PydotFactory()
     dotgraph = dotcode_factory.get_graph(rankdir="BT")
     for name in spec_index.interfaces:
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=name, shape="box")
+        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="box")
     for name in spec_index.semantic_interfaces:
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=name, shape="box")
+        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="box")
     for name, provider in spec_index.providers.items():
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=name, shape="ellipse")
-        dotcode_factory.add_edge_to_graph(dotgraph, name, provider.implements, label="provides")
+        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="ellipse")
+        dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(provider.implements), label="provides")
         for dep in provider.dependencies:
-            dotcode_factory.add_edge_to_graph(dotgraph, name, dep, label="requires")
+            dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(dep), label="requires")
     return dotcode_factory.create_dot(dotgraph)
