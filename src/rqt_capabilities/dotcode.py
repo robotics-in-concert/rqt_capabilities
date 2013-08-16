@@ -36,7 +36,7 @@
 """Provides functions to produce dotcode which represents the capability graph
 """
 
-from capabilities.discovery import spec_index_from_service
+from capabilities.service_discovery import spec_index_from_service
 
 from qt_dotgraph.pydotfactory import PydotFactory
 
