@@ -46,13 +46,27 @@ def generate_dotcode_from_capability_info():
     assert not errors
     dotcode_factory = PydotFactory()
     dotgraph = dotcode_factory.get_graph(rankdir="BT")
+    interface_graphs = {}
     for name in spec_index.interfaces:
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="box")
-    for name in spec_index.semantic_interfaces:
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="box")
+        providers = [k for k, v in spec_index.providers.items() if v.implements == name]
+        sematics = [k for k, v in spec_index.semantic_interfaces.items() if v.redefines == name]
+        if providers or sematics:
+            interface_graphs[name] = dotcode_factory.add_subgraph_to_graph(dotgraph, str(name))
+        else:
+            dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="box")
+    for name, interface in spec_index.semantic_interfaces.items():
+        graph = interface_graphs.get(interface.redefines, dotgraph)
+        dotcode_factory.add_node_to_graph(graph, nodename=str(name), shape="box")
     for name, provider in spec_index.providers.items():
-        dotcode_factory.add_node_to_graph(dotgraph, nodename=str(name), shape="ellipse")
-        dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(provider.implements), label="provides")
-        for dep in provider.dependencies:
-            dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(dep), label="requires")
+        graph = interface_graphs[provider.implements]
+        default_provider = spec_index.interfaces[provider.implements].default_provider
+        provider_name = name
+        if default_provider != 'unknown' and default_provider == name:
+            provider_name += "  (default)"
+        dotcode_factory.add_node_to_graph(graph, nodename=str(name), nodelabel=str(provider_name), shape="ellipse")
+        for dep, relationship in provider.dependencies.items():
+            if relationship.preferred_provider is not None:
+                dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(relationship.preferred_provider), label="requires")
+            elif spec_index.interfaces[relationship.capability_name].default_provider != 'unknown':
+                dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(spec_index.interfaces[relationship.capability_name].default_provider), label="requires")
     return dotcode_factory.create_dot(dotgraph)
