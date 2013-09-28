@@ -53,7 +53,7 @@ from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
 from rqt_gui_py.plugin import Plugin
 
-from rqt_graph.interactive_graphics_view import InteractiveGraphicsView
+from rqt_capabilities.graphics_view import CapabilitiesInteractiveGraphicsView
 
 from rqt_capabilities.dotcode import generate_dotcode_from_capability_info
 
@@ -74,7 +74,7 @@ class CapabilityGraph(Plugin):
 
         rp = rospkg.RosPack()
         ui_file = os.path.join(rp.get_path('rqt_capabilities'), 'resources', 'CapabilityGraph.ui')
-        loadUi(ui_file, self.__widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
+        loadUi(ui_file, self.__widget, {'CapabilitiesInteractiveGraphicsView': CapabilitiesInteractiveGraphicsView})
         self.__widget.setObjectName('CapabilityGraphUI')
         if context.serial_number() > 1:
             self.__widget.setWindowTitle(self.__widget.windowTitle() + (' (%d)' % context.serial_number()))
