@@ -36,12 +36,19 @@
 """Extends the InteractiveGraphicsView from rqt_graph to handle special actions
 """
 
+import rospy
+
 from PySide.QtCore import Qt
 from PySide.QtCore import QPoint
 
 from PySide.QtGui import QMenu
 
 from rqt_graph.interactive_graphics_view import InteractiveGraphicsView
+
+from qt_dotgraph.node_item import NodeItem
+
+from capabilities.srv import StartCapability
+from capabilities.srv import StopCapability
 
 
 class CapabilitiesInteractiveGraphicsView(InteractiveGraphicsView):
@@ -50,20 +57,51 @@ class CapabilitiesInteractiveGraphicsView(InteractiveGraphicsView):
         super(InteractiveGraphicsView, self).__init__(parent)
         self._last_pan_point = None
         self._last_scene_center = None
+        self._running_providers = []
+        self._spec_index = None
 
     def mousePressEvent(self, mouse_event):
         if mouse_event.button() == Qt.RightButton:
+            if self._spec_index is None:
+                print("spec_index is None")
+                print(self)
+                print(self._running_providers)
+                return
             pos = mouse_event.pos()
-            item = self.itemAt(pos)
-            if not item:
-                print('nothing there')
+            items = [item for item in self.items(pos) if isinstance(item, NodeItem) and item._label.text()]
+            if len(items) != 1:
+                print("wrong number of things", [x._label.text() for x in items])
                 return
 
-            def trigger():
-                print(item)
+            name = items[0]._label.text().rstrip('(default)').strip()
+            if name not in self._spec_index.provider_names:
+                print(name, "Not in list of providers")
+                return
+            provider = self._spec_index.providers[name]
+
+            def start_trigger():
+                # TODO: replace 'capability_server' with user provided server name
+                service_name = '/{0}/start_capability'.format('capability_server')
+                rospy.wait_for_service(service_name)
+                start_capability = rospy.ServiceProxy(service_name, StartCapability)
+                start_capability(provider.implements, name)
+
+            def stop_trigger():
+                # TODO: replace 'capability_server' with user provided server name
+                service_name = '/{0}/stop_capability'.format('capability_server')
+                rospy.wait_for_service(service_name)
+                stop_capability = rospy.ServiceProxy(service_name, StopCapability)
+                stop_capability(provider.implements)
+
+            if name not in self._running_providers:
+                trigger = start_trigger
+                msg = "start => "
+            else:
+                trigger = stop_trigger
+                msg = "stop => "
 
             menu = QMenu()
-            action = menu.addAction('Test')
+            action = menu.addAction(msg + name)
             action.triggered.connect(trigger)
             pos = mouse_event.globalPos()
             pos = QPoint(pos.x(), pos.y())
