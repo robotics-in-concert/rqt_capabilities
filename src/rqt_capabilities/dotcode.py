@@ -43,33 +43,46 @@ def generate_dotcode_from_capability_info(spec_index, running_providers):
     dotcode_factory = PydotFactory()
     dotgraph = dotcode_factory.get_graph(rankdir="BT")
     interface_graphs = {}
+    # Draw plain interfaces
     for name in spec_index.interfaces:
         providers = [k for k, v in spec_index.providers.items() if v.implements == name]
-        sematics = [k for k, v in spec_index.semantic_interfaces.items() if v.redefines == name]
-        if providers or sematics:
+        # Only create a subgraph if it has providers
+        if providers:
             interface_graphs[name] = dotcode_factory.add_subgraph_to_graph(dotgraph, str(name) + "_group", subgraphlabel='')
+        # Draw box for interface
         graph = interface_graphs.get(name, dotgraph)
         dotcode_factory.add_node_to_graph(graph, nodename=str(name), shape="box")
+    # Draw semantic interfaces
     for name, interface in spec_index.semantic_interfaces.items():
         providers = [k for k, v in spec_index.providers.items() if v.implements == name]
+        # Only create a subgraph if it has providers
         if providers:
             interface_graphs[name] = dotcode_factory.add_subgraph_to_graph(dotgraph, str(name) + "_group", subgraphlabel='')
         graph = interface_graphs.get(name, dotgraph)
+        # Draw box for semantic interface
         dotcode_factory.add_node_to_graph(graph, nodename=str(name), shape="box")
+        # Make edge to interface it redefines, if it exists
         if interface.redefines in spec_index.interfaces:
             dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(interface.redefines), label="redefines")
+    # Draw providers
+    interfaces = dict(spec_index.interfaces)
+    interfaces.update(spec_index.semantic_interfaces)
     for name, provider in spec_index.providers.items():
+        # Get subgraph of interface this provider implements
         graph = interface_graphs[provider.implements]
-        interfaces = dict(spec_index.interfaces)
-        interfaces.update(spec_index.semantic_interfaces)
+        # Get the default provider for the interface this provider implements
         default_provider = interfaces[provider.implements].default_provider
         provider_name = name
+        # Add annotaion if this is the default provider
         if default_provider != 'unknown' and default_provider == name:
             provider_name += "  (default)"
+        # If it is running, make it green
         if name in running_providers:
             dotcode_factory.add_node_to_graph(graph, nodename=str(name), nodelabel=str(provider_name), shape="ellipse", color="green")
+        # Else no color
         else:
             dotcode_factory.add_node_to_graph(graph, nodename=str(name), nodelabel=str(provider_name), shape="ellipse")
+        # Add edges to the interface, provider paris this provider depends on
         for dep, relationship in provider.dependencies.items():
             if relationship.preferred_provider is not None:
                 dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(relationship.preferred_provider), label="requires")
