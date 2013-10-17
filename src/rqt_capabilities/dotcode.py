@@ -48,16 +48,21 @@ def generate_dotcode_from_capability_info(spec_index, running_providers):
         sematics = [k for k, v in spec_index.semantic_interfaces.items() if v.redefines == name]
         if providers or sematics:
             interface_graphs[name] = dotcode_factory.add_subgraph_to_graph(dotgraph, str(name) + "_group", subgraphlabel='')
-        graph = dotgraph
-        if name in interface_graphs:
-            graph = interface_graphs[name]
+        graph = interface_graphs.get(name, dotgraph)
         dotcode_factory.add_node_to_graph(graph, nodename=str(name), shape="box")
     for name, interface in spec_index.semantic_interfaces.items():
-        graph = interface_graphs.get(interface.redefines, dotgraph)
+        providers = [k for k, v in spec_index.providers.items() if v.implements == name]
+        if providers:
+            interface_graphs[name] = dotcode_factory.add_subgraph_to_graph(dotgraph, str(name) + "_group", subgraphlabel='')
+        graph = interface_graphs.get(name, dotgraph)
         dotcode_factory.add_node_to_graph(graph, nodename=str(name), shape="box")
+        if interface.redefines in spec_index.interfaces:
+            dotcode_factory.add_edge_to_graph(dotgraph, str(name), str(interface.redefines), label="redefines")
     for name, provider in spec_index.providers.items():
         graph = interface_graphs[provider.implements]
-        default_provider = spec_index.interfaces[provider.implements].default_provider
+        interfaces = dict(spec_index.interfaces)
+        interfaces.update(spec_index.semantic_interfaces)
+        default_provider = interfaces[provider.implements].default_provider
         provider_name = name
         if default_provider != 'unknown' and default_provider == name:
             provider_name += "  (default)"
