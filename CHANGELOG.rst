@@ -2,8 +2,8 @@
 Changelog for package rqt_capabilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2014-05-05)
+------------------
 * Install resources and plugin.xml file
 * Contributors: William Woodall
 
