@@ -2,8 +2,8 @@
 Changelog for package rqt_capabilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2014-05-21)
+------------------
 * put in instrospection plugin group, fixes `#12 <https://github.com/osrf/rqt_capabilities/issues/12>`_
 * Contributors: William Woodall
 
