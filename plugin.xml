@@ -4,6 +4,11 @@
       A rqt plugin for visualizing and managing capabilities.
     </description>
     <qtgui>
+      <group>
+        <label>Introspection</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to introspection.</statustip>
+      </group>
       <label>Capability Graph</label>
       <icon type="theme">preferences-system-network</icon>
       <statustip>A rqt plugin for visualizing and managing capabilities.</statustip>
